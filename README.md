@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src=".github/assets/banner.svg" alt="Chess Coach — every move graded by Stockfish 19, running in your browser" width="820"/>
+<img src="docs/banner.svg" alt="Chess Coach — every move graded by Stockfish 19, running in your browser" width="820"/>
 
 # Chess Coach
 
