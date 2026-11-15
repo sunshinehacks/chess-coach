@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Opening Studio — Chess Coach</title>
+  <link rel="stylesheet" href="../review/review.css" />
+  <link rel="stylesheet" href="coach.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to the board</a>
+
+  <header class="appbar">
+    <a class="brand" href="coach.html" aria-label="Chess Coach opening studio">
+      <span class="brand-mark" aria-hidden="true">&#9822;</span>
+      <span class="brand-text">
+        <h1>Opening Studio</h1>
+        <span class="brand-subtitle">Drill a repertoire move by move</span>
+      </span>
+    </a>
+
+    <span class="appbar-spacer"></span>
+
+    <div id="engineBadge" class="engine-badge status-loading" role="status" aria-live="polite">
+      <span class="engine-dot" aria-hidden="true"></span>
+      <span id="engineStatusText">Starting engine…</span>
+    </div>
+
+    <div class="appbar-actions">
+      <a id="linkOpenReview" href="../review/review.html" class="btn btn-quiet icon-only" aria-label="Game review" data-tip="Game review" data-tip-pos="bottom"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-chart"></use></svg></a>
+      <button id="btnThemeToggle" class="btn btn-quiet icon-only" type="button" aria-label="Switch to the dark theme" data-tip="Switch to the dark theme" data-tip-pos="bottom"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-contrast"></use></svg></button>
+      <a class="btn btn-quiet icon-only" href="../options/options.html" aria-label="Settings" data-tip="Settings" data-tip-pos="bottom"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-sliders"></use></svg></a>
+    </div>
+  </header>
+
+  <div class="workspace coach-workspace">
+    <!-- ==================== REPERTOIRE RAIL ==================== -->
+    <aside class="rail" aria-label="Repertoire">
+      <section class="rail-card">
+        <div class="rail-head">
+          <h2 class="rail-title">Repertoire</h2>
+        </div>
+        <div class="trainer-category-pills" role="group" aria-label="Filter openings by category">
+          <button class="cat-pill active" type="button" data-cat="all">All (8)</button>
+          <button class="cat-pill" type="button" data-cat="White Repertoire">White</button>
+          <button class="cat-pill" type="button" data-cat="Black Repertoire">Black</button>
+          <button class="cat-pill" type="button" data-cat="Trap Refutation &amp; Defense">Traps</button>
+        </div>
+        <div id="openingLessonsGrid" class="opening-lessons-grid lesson-list"></div>
+      </section>
+    </aside>
+
+    <!-- ==================== STAGE: THE BOARD ==================== -->
+    <main id="main" class="stage" aria-label="Training board">
+      <div class="player-bar">
+        <div class="player-ident">
+          <span id="topCoachColorSwatch" class="player-color-swatch color-b" aria-hidden="true"></span>
+          <span id="topCoachName" class="player-name">Coach (Opponent)</span>
+          <span id="topCoachRole" class="player-rating">Book and Stockfish 19</span>
+        </div>
+        <div class="player-metrics">
+          <span id="lessonProgressPill" class="metric-pill">Step 0 / 12</span>
+        </div>
+      </div>
+
+      <div id="nextMovePromptBar" class="next-move-prompt">
+        <div class="nmp-header">
+          <span id="nmpTurnBadge" class="state-pill state-variation">Your move</span>
+          <strong id="nmpMoveTarget" class="nmp-target">Play 1. e4 (e2 → e4)</strong>
+        </div>
+        <p id="nmpExplanation" class="nmp-explanation">
+          Move the highlighted pawn from e2 to e4 on the board below to claim central space.
+        </p>
+      </div>
+
+      <div class="board-stage">
+        <div id="evalbar" class="evalbar" title="White-relative evaluation">
+          <div id="evalbarWhite" class="evalbar-white"></div>
+          <div id="evalbarLabel" class="evalbar-label on-dark">0.0</div>
+        </div>
+
+        <div class="board-ranks" aria-hidden="true">
+          <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+        </div>
+
+        <div class="board-stack">
+          <div id="boardContainer" class="board-container">
+          <div id="chessboard" class="chessboard" role="grid" aria-label="Opening training board"></div>
+          <svg id="boardArrowsSvg" class="board-arrows-svg" viewBox="0 0 800 800" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div id="boardMoveBadge" class="board-move-badge hidden" aria-hidden="true"></div>
+
+          <div id="promotionModal" class="promotion-modal hidden" role="dialog" aria-label="Choose promotion piece">
+            <div class="promotion-card">
+              <div class="promotion-title">Promote pawn to</div>
+              <div class="promotion-options">
+                <button data-promo="q" class="promo-btn" type="button"><span class="promo-glyph"></span>Queen</button>
+                <button data-promo="r" class="promo-btn" type="button"><span class="promo-glyph"></span>Rook</button>
+                <button data-promo="b" class="promo-btn" type="button"><span class="promo-glyph"></span>Bishop</button>
+                <button data-promo="n" class="promo-btn" type="button"><span class="promo-glyph"></span>Knight</button>
+              </div>
+              <button id="btnCancelPromo" class="btn btn-quiet" type="button">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+          <div class="board-files" aria-hidden="true">
+            <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="player-bar">
+        <div class="player-ident">
+          <span id="bottomCoachColorSwatch" class="player-color-swatch color-w" aria-hidden="true"></span>
+          <span id="bottomCoachName" class="player-name">You (Training)</span>
+          <span class="badge-you">Active side</span>
+        </div>
+        <div class="player-metrics">
+          <span id="drillStatusPill" class="metric-pill">Guided mode</span>
+        </div>
+      </div>
+
+      <div class="exploration-bar">
+        <div class="exploration-top">
+          <div class="view-toggle-group" role="group" aria-label="Training mode">
+            <button id="btnModeGuided" class="subtab-btn icon-only active" type="button" aria-label="Guided play-along" aria-pressed="true" data-tip="Guided play-along: the arrow shows each move"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-book"></use></svg></button>
+            <button id="btnModeDrill" class="subtab-btn icon-only" type="button" aria-label="Memory drill" aria-pressed="false" data-tip="Memory drill: no hints, play from memory"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-eye-off"></use></svg></button>
+            <button id="btnModeSpar" class="subtab-btn icon-only" type="button" aria-label="Free sparring" aria-pressed="false" data-tip="Free sparring: play any move, Stockfish answers"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-zap"></use></svg></button>
+          </div>
+
+          <div class="exploration-actions">
+            <button id="btnShowHint" class="btn-action icon-only" type="button" aria-label="Show the book move" data-tip="Show the book move"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-bulb"></use></svg></button>
+            <button id="btnPlayCoachMove" class="btn-action btn-action-teal icon-only" type="button" aria-label="Play the move for me" data-tip="Play the move for me"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-play-circle"></use></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="transport-bar" role="toolbar" aria-label="Lesson step navigation">
+        <button id="btnFirst" class="transport-btn" type="button" aria-label="Restart lesson" data-tip="Restart lesson (Home)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-first"></use></svg></button>
+        <button id="btnPrev" class="transport-btn" type="button" aria-label="Previous step" data-tip="Previous step (←)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-prev"></use></svg></button>
+        <button id="btnPlay" class="transport-btn transport-play" type="button" aria-label="Play walkthrough" data-tip="Play walkthrough (Space)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-play"></use></svg></button>
+        <button id="btnPause" class="transport-btn transport-pause hidden" type="button" aria-label="Pause walkthrough" data-tip="Pause (Space)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-pause"></use></svg></button>
+        <button id="btnNext" class="transport-btn" type="button" aria-label="Next step" data-tip="Next step (→)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-next"></use></svg></button>
+        <button id="btnLast" class="transport-btn" type="button" aria-label="End of line" data-tip="End of line (End)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-last"></use></svg></button>
+        <button id="btnFlip" class="transport-btn" type="button" aria-label="Flip board" data-tip="Flip board (F)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-flip"></use></svg></button>
+      </div>
+
+      <p class="keys" aria-hidden="true">
+        <span><kbd>←</kbd><kbd>→</kbd> step</span>
+        <span><kbd>space</kbd> demo</span>
+        <span><kbd>home</kbd><kbd>end</kbd> jump</span>
+        <span><kbd>f</kbd> flip</span>
+      </p>
+    </main>
+
+    <!-- ==================== LESSON PANEL ==================== -->
+    <aside class="panel-column" aria-label="Lesson">
+      <div class="console">
+        <div class="active-opening-panel">
+          <div class="lesson-top-bar">
+            <div class="lesson-title-wrap">
+              <span id="lessonEcoBadge" class="verdict-pill bg-book">C53</span>
+              <h2 id="lessonTitle" class="lesson-heading">Italian Game: Giuoco Piano</h2>
+              <span id="lessonMetaTag" class="lesson-meta-pill">Playing White</span>
+            </div>
+          </div>
+          <p id="lessonSummary" class="lesson-summary-text"></p>
+        </div>
+
+        <div id="coachStepBanner" class="coach-step-banner">
+          <div class="coach-step-top">
+            <span id="coachStepStatusBadge" class="state-pill state-variation">Step 0 / 12</span>
+          </div>
+          <p id="coachStepComment" class="coach-step-comment">
+            Use Next to walk through the opening move by move, or switch to Memory drill to test yourself on the board.
+          </p>
+          <div id="lessonMoveStrip" class="pv-line"></div>
+        </div>
+
+        <div class="roadmap-box">
+          <div class="roadmap-header">
+            <span class="roadmap-title">Move roadmap. Click a move to jump there, or play it on the board.</span>
+            <span id="roadmapProgressText" class="roadmap-progress">0 / 12 completed</span>
+          </div>
+          <div id="lessonRoadmapList" class="roadmap-list"></div>
+        </div>
+
+        <div class="strategy-columns">
+          <div class="strategy-box strategy-play">
+            <h3>How to proceed</h3>
+            <ul id="lessonHowToPlay"></ul>
+          </div>
+          <div class="strategy-box strategy-counter">
+            <h3>How to counter it</h3>
+            <ul id="lessonHowToTackle"></ul>
+          </div>
+        </div>
+
+        <details class="tactical-guides-panel">
+          <summary class="section-heading">Practical improvement &amp; anti-blunder guides</summary>
+          <div id="tacticalGuidesGrid" class="tactical-guides-grid"></div>
+        </details>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="coach.js"></script>
+</body>
+</html>

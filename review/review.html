@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Chess Coach — Game review</title>
+  <link rel="stylesheet" href="review.css" />
+</head>
+<body data-state="empty">
+  <a class="skip-link" href="#main">Skip to the board</a>
+
+  <header class="appbar">
+    <a class="brand" href="review.html" aria-label="Chess Coach">
+      <span class="brand-mark" aria-hidden="true">&#9822;</span>
+      <span class="brand-text">
+        <h1>Chess Coach</h1>
+        <span class="brand-subtitle">Stockfish 19, on this machine</span>
+      </span>
+    </a>
+
+    <div id="verdictMarquee" class="verdict-marquee" aria-live="polite">
+      <span id="marqueeWord" class="marquee-word">—</span>
+      <span id="marqueeWhy" class="marquee-why">Open a game to see every move graded.</span>
+    </div>
+
+    <div id="engineBadge" class="engine-badge status-loading" role="status" aria-live="polite">
+      <span class="engine-dot" aria-hidden="true"></span>
+      <span id="engineStatusText">Starting engine…</span>
+    </div>
+
+    <div class="appbar-actions">
+      <a id="linkOpenStudio" href="../coach/coach.html" class="btn btn-quiet icon-only" aria-label="Opening studio" data-tip="Opening studio" data-tip-pos="bottom"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-book"></use></svg></a>
+      <button id="btnThemeToggle" class="btn btn-quiet icon-only" type="button" aria-label="Switch to the dark theme" data-tip="Switch to the dark theme" data-tip-pos="bottom"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-contrast"></use></svg></button>
+      <a class="btn btn-quiet icon-only" href="../options/options.html" aria-label="Settings" data-tip="Settings" data-tip-pos="bottom"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-sliders"></use></svg></a>
+    </div>
+  </header>
+
+  <!-- Collapsible PGN input -->
+  <section id="pgnDrawer" class="pgn-drawer hidden" aria-label="Paste a PGN">
+    <div class="pgn-drawer-inner">
+      <div class="pgn-drawer-header">
+        <label for="pgnInput" class="drawer-title">Paste a game</label>
+        <button id="btnClosePgn" class="btn-close" type="button" aria-label="Close">&#10005;</button>
+      </div>
+      <textarea id="pgnInput" rows="4" placeholder="Paste PGN moves or a full game here."></textarea>
+      <div class="pgn-drawer-actions">
+        <button id="btnAnalyzePgn" class="btn btn-primary" type="button">Analyze PGN</button>
+        <span id="pgnErrorMsg" class="error-text" role="alert"></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="workspace">
+    <!-- ==================== LIBRARY RAIL ==================== -->
+    <aside class="rail" aria-label="Game library">
+      <section class="rail-card">
+        <div class="rail-head">
+          <h2 id="gamesHeaderTitle" class="rail-title">Recent games</h2>
+        </div>
+
+        <label class="rail-label" for="username">chess.com username</label>
+        <div class="rail-input-row">
+          <input id="username" type="text" placeholder="e.g. hikaru" autocomplete="off" spellcheck="false" />
+          <button id="btnTogglePgn" class="icon-key" type="button" aria-label="Paste a PGN" data-tip="Paste a PGN"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-clipboard"></use></svg></button>
+        </div>
+
+        <button id="load" class="btn btn-primary rail-load" type="button">Load games</button>
+
+        <div id="progressRow" class="progress-row">
+          <span id="progress" role="status" aria-live="polite">No games loaded yet.</span>
+          <div id="progressBarWrap" class="progress-bar-wrap hidden" aria-hidden="true">
+            <div id="progressBarFill" class="progress-bar-fill"></div>
+          </div>
+        </div>
+
+        <div id="games" class="games-list" role="list"></div>
+      </section>
+
+      <p class="keys" aria-hidden="true">
+        <span><kbd>←</kbd><kbd>→</kbd> step</span>
+        <span><kbd>space</kbd> play</span>
+        <span><kbd>[</kbd><kbd>]</kbd> error</span>
+        <span><kbd>f</kbd> flip</span>
+        <span><kbd>/</kbd> search</span>
+      </p>
+    </aside>
+
+    <!-- ==================== STAGE: THE BOARD ==================== -->
+    <main id="main" class="stage" aria-label="Board">
+      <div id="topPlayerBar" class="player-bar">
+        <div class="player-ident">
+          <span id="topPlayerColorDot" class="player-color-swatch color-b" aria-hidden="true"></span>
+          <span id="topPlayerName" class="player-name">Black</span>
+          <span id="topPlayerYouTag" class="badge-you hidden">You</span>
+          <span id="topPlayerRating" class="player-rating"></span>
+          <span id="topPlayerMaterial" class="player-material"></span>
+        </div>
+        <div class="player-metrics">
+          <span id="topPlayerElo" class="metric-pill"></span>
+          <span id="topPlayerAcc" class="metric-pill"></span>
+        </div>
+      </div>
+
+      <div class="board-stage">
+        <div id="evalbar" class="evalbar" title="White-relative evaluation">
+          <div id="evalbarWhite" class="evalbar-white"></div>
+          <div id="evalbarLabel" class="evalbar-label on-dark">0.0</div>
+        </div>
+
+        <div class="board-ranks" aria-hidden="true">
+          <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+        </div>
+
+        <div class="board-stack">
+          <div id="boardContainer" class="board-container">
+          <div id="chessboard" class="chessboard" role="grid" aria-label="Chessboard"></div>
+          <svg id="boardArrowsSvg" class="board-arrows-svg" viewBox="0 0 800 800" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div id="boardMoveBadge" class="board-move-badge hidden" aria-hidden="true"></div>
+
+          <div id="promotionModal" class="promotion-modal hidden" role="dialog" aria-label="Choose promotion piece">
+            <div class="promotion-card">
+              <div class="promotion-title">Promote pawn to</div>
+              <div class="promotion-options">
+                <button data-promo="q" class="promo-btn" type="button"><span class="promo-glyph"></span>Queen</button>
+                <button data-promo="r" class="promo-btn" type="button"><span class="promo-glyph"></span>Rook</button>
+                <button data-promo="b" class="promo-btn" type="button"><span class="promo-glyph"></span>Bishop</button>
+                <button data-promo="n" class="promo-btn" type="button"><span class="promo-glyph"></span>Knight</button>
+              </div>
+              <button id="btnCancelPromo" class="btn btn-quiet" type="button">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+          <div class="board-files" aria-hidden="true">
+            <span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="bottomPlayerBar" class="player-bar">
+        <div class="player-ident">
+          <span id="bottomPlayerColorDot" class="player-color-swatch color-w" aria-hidden="true"></span>
+          <span id="bottomPlayerName" class="player-name">White</span>
+          <span id="bottomPlayerYouTag" class="badge-you hidden">You</span>
+          <span id="bottomPlayerRating" class="player-rating"></span>
+          <span id="bottomPlayerMaterial" class="player-material"></span>
+        </div>
+        <div class="player-metrics">
+          <span id="bottomPlayerElo" class="metric-pill"></span>
+          <span id="bottomPlayerAcc" class="metric-pill"></span>
+        </div>
+      </div>
+
+      <div id="variationBanner" class="exploration-bar">
+        <div class="exploration-top">
+          <div class="exploration-status">
+            <span id="boardModeBadge" class="state-pill state-game">Game line</span>
+            <span id="boardPositionStatus" class="position-counter">Start position</span>
+          </div>
+          <div class="exploration-actions">
+            <button id="btnToggleBeforeAfter" class="btn-action icon-only" type="button" disabled aria-label="View before move" data-tip="View before move"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-eye"></use></svg></button>
+            <button id="btnPreviewBest" class="btn-action btn-action-teal icon-only" type="button" disabled aria-label="Play recommended" data-tip="Play recommended"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-star"></use></svg></button>
+            <button id="btnStepPv" class="btn-action btn-action-teal icon-only" type="button" disabled aria-label="Play best follow-up" data-tip="Play best follow-up"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-fast"></use></svg></button>
+            <button id="btnReturnGame" class="btn-action btn-action-amber icon-only hidden" type="button" aria-label="Return to game" data-tip="Return to game"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-undo"></use></svg></button>
+          </div>
+        </div>
+
+        <div id="variationTrailWrap" class="variation-trail-wrap hidden">
+          <span class="trail-label">Variation line:</span>
+          <div id="variationTrail" class="variation-trail"></div>
+        </div>
+      </div>
+
+      <div class="transport-bar" role="toolbar" aria-label="Move navigation controls">
+        <button id="btnFirst" class="transport-btn" type="button" aria-label="First move" data-tip="First move (Home)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-first"></use></svg></button>
+        <button id="btnPrev" class="transport-btn" type="button" aria-label="Previous move" data-tip="Previous move (←)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-prev"></use></svg></button>
+        <button id="btnPlay" class="transport-btn transport-play" type="button" aria-label="Play" data-tip="Play (Space)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-play"></use></svg></button>
+        <button id="btnPause" class="transport-btn transport-pause hidden" type="button" aria-label="Pause" data-tip="Pause (Space)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-pause"></use></svg></button>
+        <button id="btnNext" class="transport-btn" type="button" aria-label="Next move" data-tip="Next move (→)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-next"></use></svg></button>
+        <button id="btnLast" class="transport-btn" type="button" aria-label="Last move" data-tip="Last move (End)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-last"></use></svg></button>
+        <button id="btnFlip" class="transport-btn" type="button" aria-label="Flip board" data-tip="Flip board (F)"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-flip"></use></svg></button>
+      </div>
+    </main>
+
+    <!-- ==================== ANALYSIS PANEL ==================== -->
+    <aside class="panel-column" aria-label="Analysis">
+      <div id="emptyState" class="empty-state">
+        <div class="empty-head">
+          <h2>No game open</h2>
+          <p>
+            Load a game from your chess.com archive, or paste a PGN. Stockfish 19 reads every move
+            on this machine and fills in the report.
+          </p>
+          <div class="empty-actions">
+            <button id="loadSample" class="btn btn-quiet" type="button">See a sample game</button>
+          </div>
+        </div>
+
+        <div class="empty-grid">
+          <section class="empty-item">
+            <h3>Every move graded</h3>
+            <p>Each move gets a grade and the win probability it swung.</p>
+          </section>
+          <section class="empty-item">
+            <h3>Both players compared</h3>
+            <p>Accuracy, an estimated Elo, and the phase where each side lost ground.</p>
+          </section>
+          <section class="empty-item">
+            <h3>Mistakes on the board</h3>
+            <p>Open the position before a mistake and play the move Stockfish wanted.</p>
+          </section>
+        </div>
+
+        <div class="empty-foot">
+          <p class="empty-note">Games are read from chess.com and never uploaded.</p>
+          <div class="empty-keys">
+            <span><kbd>1</kbd><kbd>2</kbd> views</span>
+            <span><kbd>s</kbd> studio</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="console" data-when="game">
+        <!-- Win probability strip, now opening the panel -->
+        <div class="inspector-metrics">
+          <div class="stat-cell">
+            <span class="stat-cell-label">Win probability change</span>
+            <span id="detailWinProb" class="stat-cell-val">—</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-cell-label" id="detailBestMoveLabel">Best move</span>
+            <span id="detailBestMove" class="stat-cell-val val-teal">—</span>
+          </div>
+          <div class="stat-cell">
+            <span class="stat-cell-label">Move accuracy</span>
+            <span id="detailMoveAcc" class="stat-cell-val">—</span>
+          </div>
+        </div>
+
+        <div class="compact-summary-bar">
+          <div class="score-opening">
+            <span class="cs-label">Opening</span>
+            <strong class="cs-val-text" id="openingVal">—</strong>
+            <button id="btnTrainDetectedOpening" class="practice-btn" type="button" aria-label="Practice this opening" data-tip="Practice this opening" data-tip-pos="bottom"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-target"></use></svg></button>
+          </div>
+        </div>
+
+        <!-- Position inspector -->
+        <div id="moveDetailCard" class="inspector-panel">
+          <div class="inspector-header">
+            <div class="inspector-title-row">
+              <span id="detailMoveTitle" class="inspector-move-title">Starting position</span>
+              <span id="detailMoveBadge" class="verdict-pill tag-forced">Ready</span>
+            </div>
+            <span id="detailFenTurn" class="inspector-turn">White to move</span>
+          </div>
+
+          <p id="detailExplanation" class="inspector-explanation">
+            Step through the game with the arrow keys, or click any move in the list.
+          </p>
+
+          <!-- Evaluation graph, now inside the inspector -->
+          <div class="evalgraph-panel evalgraph-in-inspector">
+            <div class="evalgraph-head">
+              <span class="evalgraph-title">Evaluation</span>
+              <span class="evalgraph-value" id="evalGraphValue">—</span>
+            </div>
+            <div id="evalGraph" class="evalgraph" role="slider" tabindex="0"
+                 title="Click, or use the arrow keys, to step through the game"
+                 aria-label="Evaluation timeline. Use the arrow keys to move through the game."
+                 aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-valuetext="No game loaded">
+              <svg id="evalGraphSvg" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+              <div id="evalGraphTip" class="evalgraph-tip hidden" aria-hidden="true"></div>
+            </div>
+            <div class="evalgraph-axis" aria-hidden="true">
+              <span>1</span><span id="evalGraphMid">—</span><span id="evalGraphEnd">—</span>
+            </div>
+            <div class="evalgraph-legend" aria-hidden="true">
+              <span><i class="lg-inaccuracy"></i>Inaccuracy</span>
+              <span><i class="lg-mistake"></i>Mistake</span>
+              <span><i class="lg-blunder"></i>Blunder</span>
+            </div>
+          </div>
+
+          <div class="pv-strip-box">
+            <span class="pv-strip-label" id="detailPvLabel">Best line. Click a move to follow it.</span>
+            <div id="detailPvLine" class="pv-line">—</div>
+          </div>
+        </div>
+
+        <div class="workbench-tabs" role="tablist" aria-label="Analysis Views">
+          <button id="modeBtnReview" class="wb-tab active" type="button" role="tab" aria-selected="true" data-tab="moves">
+            Moves
+          </button>
+          <button id="modeBtnComparison" class="wb-tab" type="button" role="tab" aria-selected="false" data-tab="comparison">
+            Comparison
+          </button>
+        </div>
+
+        <div id="gameReviewPanel" class="wb-pane">
+          <div class="panel history-panel">
+            <div class="history-toolbar">
+              <div class="view-toggle-group" role="group" aria-label="Move list layout">
+                <button id="tabPairedMoves" class="subtab-btn icon-only active" type="button" aria-label="Paired notation" data-tip="Paired notation"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-list"></use></svg></button>
+                <button id="tabDetailedTable" class="subtab-btn icon-only" type="button" aria-label="Detailed table" data-tip="Detailed table"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-table"></use></svg></button>
+              </div>
+
+              <div class="history-filters">
+                <label for="playerFilterSelect" class="sr-only">Filter by player</label>
+                <select id="playerFilterSelect" class="filter-select" title="Filter moves by player">
+                  <option value="both">Both players</option>
+                  <option value="me">My moves</option>
+                  <option value="opponent">Opponent moves</option>
+                  <option value="w">White</option>
+                  <option value="b">Black</option>
+                </select>
+                <button class="filter-chip icon-only active" type="button" data-filter="all" aria-label="All moves" data-tip="All moves"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-grid"></use></svg></button>
+                <button class="filter-chip icon-only" type="button" data-filter="critical" aria-label="Inaccuracies and worse" data-tip="Inaccuracies and worse"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-alert"></use></svg></button>
+                <button class="filter-chip icon-only" type="button" data-filter="highlights" aria-label="Best and brilliant" data-tip="Best and brilliant"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-star"></use></svg></button>
+              </div>
+            </div>
+
+            <div id="moveListContainer" class="move-list-scroll">
+              <div class="move-list-head" aria-hidden="true"><span></span><span>White</span><span>Black</span></div>
+              <div id="moveListGrid" class="move-list-grid">
+                <div class="empty-state-msg">No game moves loaded yet.</div>
+              </div>
+            </div>
+
+            <div id="moveTableContainer" class="move-table-scroll hidden">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ply</th>
+                    <th>Side</th>
+                    <th>Move</th>
+                    <th>Verdict</th>
+                    <th>Eval</th>
+                    <th>Win Δ</th>
+                    <th>Best Move</th>
+                  </tr>
+                </thead>
+                <tbody id="moveTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="takeawaysPanel" class="panel coach-plan-panel hidden">
+            <div class="coach-card-header">
+              <h2 id="coachPlanHeadline" class="section-heading">What to work on</h2>
+              <button id="btnJumpWorstMove" class="btn-action btn-action-amber icon-only hidden" type="button" aria-label="Inspect the turning point" data-tip="Inspect the turning point"><svg class="icon" aria-hidden="true"><use href="../assets/icons.svg#i-target"></use></svg></button>
+            </div>
+            <ul id="coachPlanTips" class="coach-tips-list">
+              <li>Analysis will list the habits that cost you the most, ranked by centipawn loss.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="comparisonPanel" class="wb-pane hidden">
+          <div id="summary" class="comparison-panel">
+            <div id="headToHeadBanner" class="h2h-callout">
+              Load a game to compare your accuracy, estimated Elo, phase consistency, and move classifications side-by-side against your opponent.
+            </div>
+
+            <div class="sbs-table-wrap">
+              <div class="sbs-header-row">
+                <div class="sbs-col-player sbs-white">
+                  <span class="player-color-swatch color-w"></span>
+                  <span id="cmpWhiteName" class="sbs-player-name">White</span>
+                  <span id="cmpWhiteYou" class="badge-you hidden">You</span>
+                </div>
+                <div class="sbs-col-label">Metric</div>
+                <div class="sbs-col-player sbs-black">
+                  <span id="cmpBlackYou" class="badge-you hidden">You</span>
+                  <span id="cmpBlackName" class="sbs-player-name">Black</span>
+                  <span class="player-color-swatch color-b"></span>
+                </div>
+              </div>
+
+              <div class="sbs-metric-row sbs-highlight-row">
+                <div class="sbs-val-left"><span id="cmpWhiteAcc" class="sbs-acc-pill">—</span></div>
+                <div class="sbs-metric-name">Overall accuracy</div>
+                <div class="sbs-val-right"><span id="cmpBlackAcc" class="sbs-acc-pill">—</span></div>
+              </div>
+
+              <div class="sbs-metric-row sbs-highlight-row">
+                <div class="sbs-val-left">
+                  <span id="cmpWhiteElo" class="sbs-elo-pill">—</span>
+                  <span id="cmpWhiteTier" class="sbs-tier-sub"></span>
+                </div>
+                <div class="sbs-metric-name">Estimated game Elo</div>
+                <div class="sbs-val-right">
+                  <span id="cmpBlackTier" class="sbs-tier-sub"></span>
+                  <span id="cmpBlackElo" class="sbs-elo-pill">—</span>
+                </div>
+              </div>
+
+              <div class="sbs-metric-row">
+                <div class="sbs-val-left" id="cmpWhiteAcpl">—</div>
+                <div class="sbs-metric-name">Avg centipawn loss</div>
+                <div class="sbs-val-right" id="cmpBlackAcpl">—</div>
+              </div>
+
+              <div class="sbs-metric-row">
+                <div class="sbs-val-left" id="cmpWhitePhase">—</div>
+                <div class="sbs-metric-name">Opening / middlegame / endgame</div>
+                <div class="sbs-val-right" id="cmpBlackPhase">—</div>
+              </div>
+
+              <div id="classificationGrid" class="sbs-classifications-body"></div>
+            </div>
+
+            <div class="dual-feedback-grid">
+              <div class="player-feedback-box">
+                <div class="pf-title">
+                  <span class="player-color-swatch color-w"></span>
+                  <span id="whiteFeedbackTitle">White Performance</span>
+                </div>
+                <p id="whiteFeedbackText" class="pf-text">—</p>
+              </div>
+              <div class="player-feedback-box">
+                <div class="pf-title">
+                  <span class="player-color-swatch color-b"></span>
+                  <span id="blackFeedbackTitle">Black Performance</span>
+                </div>
+                <p id="blackFeedbackText" class="pf-text">—</p>
+              </div>
+            </div>
+
+            <p id="playstyle" class="playstyle-notes"></p>
+          </div>
+        </div>
+
+        <div id="coachTrainerPanel" class="wb-pane hidden">
+          <div class="panel opening-trainer-panel">
+            <div class="trainer-header-row">
+              <h3 class="section-heading">Interactive opening &amp; counter-play repertoire</h3>
+              <div class="trainer-category-pills" role="group" aria-label="Filter openings by category">
+                <button class="cat-pill active" type="button" data-cat="all">All (8)</button>
+                <button class="cat-pill" type="button" data-cat="White Repertoire">White</button>
+                <button class="cat-pill" type="button" data-cat="Black Repertoire">Black</button>
+                <button class="cat-pill" type="button" data-cat="Trap Refutation & Defense">Refute Traps</button>
+              </div>
+            </div>
+
+            <div id="openingLessonsGrid" class="opening-lessons-grid"></div>
+
+            <div id="activeLessonBox" class="active-lesson-box">
+              <div class="lesson-top-bar">
+                <div class="lesson-title-wrap">
+                  <span id="lessonEcoBadge" class="verdict-pill bg-book">C53</span>
+                  <strong id="lessonTitle" class="lesson-name">Italian Game: Giuoco Piano</strong>
+                  <span id="lessonMetaTag" class="lesson-meta">Playing White</span>
+                </div>
+                <div class="lesson-mode-btns">
+                  <button id="btnCoachModeGuided" class="subtab-btn active" type="button">Guided walkthrough</button>
+                  <button id="btnCoachModeDrill" class="subtab-btn" type="button">Practice drill</button>
+                </div>
+              </div>
+
+              <p id="lessonSummary" class="lesson-summary"></p>
+
+              <div id="coachStepBanner" class="coach-step-banner">
+                <div class="coach-step-top">
+                  <span id="coachStepStatusBadge" class="state-pill state-variation">Step 0 / 12</span>
+                  <div class="coach-step-controls">
+                    <button id="btnLessonReset" class="btn-action" type="button">Restart</button>
+                    <button id="btnLessonPrev" class="btn-action" type="button">◀ Prev step</button>
+                    <button id="btnLessonNext" class="btn-action btn-action-teal" type="button">Next step ▶</button>
+                    <button id="btnLessonHint" class="btn-action hidden" type="button">Show hint arrow</button>
+                  </div>
+                </div>
+                <p id="coachStepComment" class="coach-step-comment">
+                  Use Next step to walk through the opening move-by-move, or switch to Practice drill to test yourself on the board.
+                </p>
+                <div id="lessonMoveStrip" class="pv-line"></div>
+              </div>
+
+              <div class="strategy-columns">
+                <div class="strategy-box">
+                  <h4>How to play it (your gameplan)</h4>
+                  <ul id="lessonHowToPlay"></ul>
+                </div>
+                <div class="strategy-box">
+                  <h4>How to tackle &amp; counter it</h4>
+                  <ul id="lessonHowToTackle"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel tactical-guides-panel">
+            <h3 class="section-heading">Practical improvement &amp; anti-blunder guides</h3>
+            <div id="tacticalGuidesGrid" class="tactical-guides-grid"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="review.js"></script>
+</body>
+</html>

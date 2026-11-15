@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Chess Coach</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="head">
+    <span class="mark" aria-hidden="true">&#9822;</span>
+    <div class="head-text">
+      <h1>Chess Coach</h1>
+      <p>Stockfish 19, running locally</p>
+    </div>
+  </header>
+
+  <main>
+    <label class="switch-row" for="enabled">
+      <span class="row-copy">
+        <span class="row-title">Live coaching</span>
+        <span class="row-note" id="liveNote">On chess.com game pages</span>
+      </span>
+      <input type="checkbox" id="enabled" role="switch" />
+      <span class="track" aria-hidden="true"><span class="knob"></span></span>
+    </label>
+
+    <a class="primary" id="openReview" href="../review/review.html">Review a game</a>
+
+    <div class="links">
+      <button id="openStudio" class="link-row" type="button">
+        <span class="row-title">Opening studio</span>
+        <span class="row-note">Drill a repertoire move by move</span>
+      </button>
+      <button id="openOptions" class="link-row" type="button">
+        <span class="row-title">Settings</span>
+        <span class="row-note">Username, depth and theme</span>
+      </button>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <span id="versionLabel">Chess Coach</span>
+    <span>No uploads</span>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

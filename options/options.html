@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Settings — Chess Coach</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main class="sheet">
+    <header class="head">
+      <a class="brand" href="../review/review.html">
+        <span class="mark" aria-hidden="true">&#9822;</span>
+        <span class="head-text">
+          <span class="kicker">Chess Coach</span>
+          <h1>Settings</h1>
+        </span>
+      </a>
+    </header>
+
+    <form id="settingsForm" class="form">
+      <section class="row">
+        <label class="row-label" for="username">chess.com username</label>
+        <input id="username" type="text" placeholder="e.g. hikaru" autocomplete="off" spellcheck="false" />
+        <p class="row-note">
+          Used to tell which moves are yours and to load your game archive.
+        </p>
+      </section>
+
+      <section class="row" role="group" aria-labelledby="depthLabel">
+        <h2 class="row-label" id="depthLabel">Search depth</h2>
+        <p class="row-note">
+          Deeper searches see further ahead and take longer per move. Balanced keeps up with most
+          time controls.
+        </p>
+        <div class="choices" role="radiogroup" aria-label="Search depth">
+          <label class="choice">
+            <input type="radio" name="depth" value="12" />
+            <span class="choice-body">
+              <span class="choice-mark" aria-hidden="true"></span>
+              <span class="choice-text">
+                <span class="choice-title">Fast</span>
+                <span class="choice-meta">Depth 12</span>
+              </span>
+              <span class="choice-note">Instant feedback for bullet and blitz.</span>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="depth" value="14" />
+            <span class="choice-body">
+              <span class="choice-mark" aria-hidden="true"></span>
+              <span class="choice-text">
+                <span class="choice-title">Balanced</span>
+                <span class="choice-meta">Depth 14</span>
+              </span>
+              <span class="choice-note">The default for live coaching.</span>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="depth" value="18" />
+            <span class="choice-body">
+              <span class="choice-mark" aria-hidden="true"></span>
+              <span class="choice-text">
+                <span class="choice-title">Deep</span>
+                <span class="choice-meta">Depth 18</span>
+              </span>
+              <span class="choice-note">Slower and stronger; best for review.</span>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <section class="row" role="group" aria-labelledby="themeLabel">
+        <h2 class="row-label" id="themeLabel">Colour theme</h2>
+        <div class="choices choices-2" role="radiogroup" aria-label="Colour theme">
+          <label class="choice">
+            <input type="radio" name="theme" value="light" />
+            <span class="choice-body">
+              <span class="choice-mark" aria-hidden="true"></span>
+              <span class="choice-text">
+                <span class="choice-title">Light</span>
+              </span>
+              <span class="choice-note">Cool grey paper for daylight.</span>
+            </span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="theme" value="dark" />
+            <span class="choice-body">
+              <span class="choice-mark" aria-hidden="true"></span>
+              <span class="choice-text">
+                <span class="choice-title">Dark</span>
+              </span>
+              <span class="choice-note">Navy ink for night sessions.</span>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <button id="save" class="save" type="submit">Save settings</button>
+        <span id="saved" class="saved" role="status" aria-live="polite"></span>
+      </footer>
+    </form>
+  </main>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+﻿/* Chess Coach — the live panel: a quiet floating instrument on chess.com
+ * Dark-first spotlight stage, bone ink, one live accent, grade colours as
+ * data. No glass, no blur, no filters. Scoped under #chess-coach-panel.
+ */
+
+#chess-coach-panel {
+  --cc-body: #121517;
+  --cc-face: #171b1e;
+  --cc-raised: #1a1f22;
+  --cc-well: #0b0d0e;
+  --cc-ink: #eef1ec;
+  --cc-muted: #8b958e;
+  --cc-line: #232a2d;
+  --cc-line-2: #2c3438;
+  --cc-accent: #3ecf8e;
+  --cc-accent-text: #3ecf8e;
+  --cc-accent-2: #2aa476;
+  --cc-r: 14px;
+  --cc-r-sm: 8px;
+
+  /* Same motion rhythm as the review page — one set of durations, everywhere. */
+  --cc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --cc-m-press: 90ms;
+  --cc-m-in: 150ms;
+  --cc-m-slow: 220ms;
+
+  --cc-brilliant: #42d5a0;
+  --cc-great: #6db1ff;
+  --cc-best: #3ecf8e;
+  --cc-excellent: #57c48f;
+  --cc-good: #9bc48f;
+  --cc-book: #c9a24a;
+  --cc-forced: #9aa39d;
+  --cc-inaccuracy: #f2b04a;
+  --cc-mistake: #ff9454;
+  --cc-blunder: #ff6a5a;
+
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 999999;
+  width: 352px;
+  max-height: 76vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #141920, #12161a);
+  color: var(--cc-ink);
+  border: 1px solid rgba(37, 45, 49, 0.85);
+  border-radius: var(--cc-r);
+  box-shadow: 0 28px 60px -22px rgba(0, 0, 0, 0.8);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+#chess-coach-panel.cc-dragging {
+  border-color: var(--cc-accent-2);
+  box-shadow: 0 32px 64px -20px rgba(0, 0, 0, 0.85);
+  transition: none !important;
+}
+
+#chess-coach-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 76vh;
+}
+
+/* Evaluation strip — horizontal, under the verdict card; the value chip
+   straddles the fill boundary */
+#chess-coach-evalbar {
+  position: relative;
+  height: 12px;
+  flex-shrink: 0;
+  margin: 14px 14px 12px;
+  border-radius: 6px;
+  background: var(--cc-well);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+#chess-coach-evalbar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  z-index: 3;
+  background: rgba(238, 241, 236, 0.35);
+}
+
+#chess-coach-evalbar-white {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #f8f8f4, #c6cbc3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: width var(--cc-m-slow) var(--cc-ease);
+}
+
+#chess-coach-evalbar-label {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: #17150f;
+  color: #f0f2ee;
+  box-shadow: 0 0 0 1px rgba(238, 241, 236, 0.45), 0 1px 4px rgba(0, 0, 0, 0.4);
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Header */
+#chess-coach-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 9px 7px 10px;
+  background: linear-gradient(180deg, #171b1e, var(--cc-face));
+  border-bottom: 1px solid var(--cc-line);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  cursor: grab;
+  touch-action: none;
+}
+
+#chess-coach-header:active {
+  cursor: grabbing;
+}
+
+.cc-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.cc-drag-grip {
+  color: var(--cc-line-2);
+  font-size: 11px;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.cc-dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--cc-accent);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.cc-dot-loading,
+.cc-dot-analyzing {
+  background: var(--cc-inaccuracy);
+}
+
+.cc-dot-ready {
+  background: var(--cc-best);
+}
+
+.cc-dot-error {
+  background: var(--cc-blunder);
+}
+
+.cc-title {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.cc-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cc-hdr-btn {
+  min-height: 24px;
+  padding: 0 7px;
+  background: var(--cc-raised);
+  color: var(--cc-muted);
+  border: 1px solid var(--cc-line);
+  border-radius: var(--cc-r-sm);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--cc-m-in) var(--cc-ease), transform var(--cc-m-press) var(--cc-ease), border-color var(--cc-m-in) var(--cc-ease);
+}
+
+.cc-hdr-btn-icon {
+  width: 24px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cc-hdr-btn-icon svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cc-hdr-btn:hover {
+  color: var(--cc-ink);
+}
+
+.cc-hdr-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.cc-hdr-btn:focus-visible {
+  outline: 2px solid var(--cc-accent);
+  outline-offset: 1px;
+}
+
+.cc-hdr-btn-teal {
+  color: var(--cc-accent-text);
+}
+
+/* Status line */
+#chess-coach-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 10px;
+  background: var(--cc-body);
+  border-bottom: 1px solid var(--cc-line);
+  font-size: 10.5px;
+  color: var(--cc-muted);
+}
+
+#chess-coach-opening {
+  max-width: 196px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cc-ink);
+  opacity: 0.85;
+}
+
+#chess-coach-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Readout: a bone plate set into the device */
+.cc-kpi-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 9px 14px 12px;
+  border-top: 1px solid var(--cc-line);
+  margin-top: auto;
+}
+
+.cc-kpi-cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--cc-line);
+  border-radius: 9px;
+  padding: 7px 9px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.cc-kpi-cell + .cc-kpi-cell {
+  border-left: 1px solid var(--cc-line);
+}
+
+.cc-kpi-label {
+  font-size: 7.5px;
+  letter-spacing: 0.16em;
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  color: var(--cc-muted);
+}
+
+.cc-kpi-val {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+#chess-coach-accuracy {
+  color: var(--cc-best);
+}
+
+#chess-coach-vs {
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 12px;
+}
+
+/* Verdict card — the loudest text in the panel */
+.cc-verdict-card {
+  padding: 10px 14px 11px;
+  border-bottom: 1px solid var(--cc-line);
+  background: var(--cc-face);
+}
+
+#chess-coach-last-move {
+  margin-bottom: 2px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+#chess-coach-explain {
+  color: var(--cc-muted);
+  font-size: 12px;
+  line-height: 1.45;
+  user-select: text;
+}
+
+.cc-verdict-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.cc-sc {
+  border: 1px solid var(--cc-line);
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.015);
+  min-width: 0;
+}
+
+.cc-sc-l {
+  display: block;
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 6.5px;
+  letter-spacing: 0.18em;
+  color: var(--cc-muted);
+}
+
+.cc-sc-v {
+  display: block;
+  margin-top: 2px;
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cc-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Grade strip */
+#chess-coach-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--cc-body);
+  border-bottom: 1px solid var(--cc-line);
+}
+
+.cc-pill {
+  padding: 1px 5px;
+  border: 1px solid transparent;
+  border-radius: var(--cc-r-sm);
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 10px;
+  opacity: 0.42;
+}
+
+.cc-pill b {
+  font-weight: 600;
+}
+
+.cc-pill.cc-pill-active {
+  opacity: 1;
+  border-color: currentColor;
+}
+
+/* Move log */
+#chess-coach-log {
+  max-height: 168px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cc-line-2) transparent;
+}
+
+#chess-coach-log::-webkit-scrollbar {
+  width: 8px;
+}
+
+#chess-coach-log::-webkit-scrollbar-thumb {
+  background: var(--cc-line-2);
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 99px;
+}
+
+/* Move log — a two-column score sheet: White left, Black right */
+.cc-log-head {
+  display: grid;
+  grid-template-columns: 26px 1fr 1fr;
+  padding: 4px 10px 3px;
+  border-bottom: 1px solid var(--cc-line-2);
+  background: var(--cc-body);
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cc-muted);
+}
+
+.log-pair {
+  display: grid;
+  grid-template-columns: 26px 1fr 1fr;
+  align-items: stretch;
+  border-bottom: 1px solid var(--cc-line);
+}
+
+.log-num {
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 10.5px;
+  color: var(--cc-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.log-half {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: background-color var(--cc-m-press) var(--cc-ease), box-shadow var(--cc-m-press) var(--cc-ease);
+}
+
+.log-half + .log-half {
+  border-left: 1px solid var(--cc-line);
+}
+
+.log-half:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.log-half:focus-visible {
+  outline: 2px solid var(--cc-accent);
+  outline-offset: -2px;
+}
+
+/* a selected past move, lit by the brass rail like the review page's score sheet */
+.log-half.cc-selected {
+  background: var(--cc-raised);
+  box-shadow: inset 3px 0 0 var(--cc-accent);
+}
+
+.log-half-empty {
+  cursor: default;
+}
+
+.log-half-empty:hover {
+  background: transparent;
+}
+
+.log-half-main {
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 10.5px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.log-half-sub {
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  font-size: 9px;
+  line-height: 1.2;
+  color: var(--cc-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Board marker */
+#chess-coach-board-markers {
+  position: fixed;
+  z-index: 999998;
+  pointer-events: none;
+}
+
+#chess-coach-marker {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: var(--cc-r-sm);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 2px 4px rgba(0, 0, 0, 0.55), 0 0 0 2px rgba(255, 248, 230, 0.55);
+  transition: left var(--cc-m-in) var(--cc-ease), top var(--cc-m-in) var(--cc-ease), width var(--cc-m-in) var(--cc-ease), height var(--cc-m-in) var(--cc-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #chess-coach-evalbar-white,
+  #chess-coach-marker,
+  .chess-coach-marker-pop {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@keyframes chess-coach-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.chess-coach-marker-pop {
+  animation: chess-coach-settle 160ms ease-out;
+}
+
+/* Grade colours */
+#chess-coach-panel .tag-brilliant { color: var(--cc-brilliant); }
+#chess-coach-panel .tag-great { color: var(--cc-great); }
+#chess-coach-panel .tag-best { color: var(--cc-best); }
+#chess-coach-panel .tag-excellent { color: var(--cc-excellent); }
+#chess-coach-panel .tag-good { color: var(--cc-good); }
+#chess-coach-panel .tag-book { color: var(--cc-book); }
+#chess-coach-panel .tag-inaccuracy { color: var(--cc-inaccuracy); }
+#chess-coach-panel .tag-mistake { color: var(--cc-mistake); }
+#chess-coach-panel .tag-blunder { color: var(--cc-blunder); }
+#chess-coach-panel .tag-forced { color: var(--cc-forced); }
+

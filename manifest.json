@@ -1,0 +1,76 @@
+{
+  "manifest_version": 3,
+  "name": "Chess Coach — Realtime Stockfish Analyzer",
+  "version": "1.5.0",
+  "description": "Post-move coaching for chess.com games: move quality, accuracy, opening ID, interactive game review, and dedicated opening studio — powered by Stockfish 19 running locally.",
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://www.chess.com/*",
+    "https://api.chess.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Chess Coach",
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "32": "assets/icon32.png",
+      "48": "assets/icon48.png",
+      "128": "assets/icon128.png"
+    }
+  },
+  "options_page": "options/options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.chess.com/play/*",
+        "https://www.chess.com/game/*",
+        "https://www.chess.com/live*",
+        "https://www.chess.com/*"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "engine/stockfish.js",
+        "engine/stockfish.wasm",
+        "lib/chess.js",
+        "lib/engine.js",
+        "lib/classify.js",
+        "lib/openings.json",
+        "content/overlay.css",
+        "review/review.html",
+        "review/review.css",
+        "review/review.js",
+        "coach/coach.html",
+        "coach/coach.css",
+        "coach/coach.js",
+        "assets/*"
+      ],
+      "matches": [
+        "https://www.chess.com/*"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  }
+}

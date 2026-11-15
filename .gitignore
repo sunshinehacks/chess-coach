@@ -1,0 +1,24 @@
+# AI-tool caches & local skill bundles (not part of the extension)
+.taste-skill/
+.claude/
+.kilo/
+.zcode/
+.impeccable/
+skills-src/
+
+# Development screenshots / design exploration
+shots/
+designs/
+
+# AI-skill workflow docs (kept locally, not published)
+PRODUCT.md
+design-brief.md
+design-system.md
+requirements.md
+ui-progress.md
+ux-brief.md
+
+# OS & editor noise
+Thumbs.db
+Desktop.ini
+.DS_Store

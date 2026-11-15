@@ -1,0 +1,347 @@
+﻿/* Chess Coach popup — a quiet slip on the spotlight stage. Same tokens as the
+ * review page: near-black stage, floating sheet, one live accent. Theme is
+ * applied by popup.js via [data-theme] (saved setting, OS preference fallback). */
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --desk: #f0efe9;
+  --sheet: #ffffff;
+  --sheet-2: #faf9f4;
+  --ink: #1a1b17;
+  --muted: #5f6358;
+  --accent: #1d7a55;
+  --accent-hi: #2e9a6d;
+  --accent-deep: #14603f;
+  --accent-ink: #1a1b17;
+  --gold: #a97c2f;
+  --focus: #14603f;
+  --primary: #1a1b17;
+  --primary-ink: #fbfaf4;
+  --primary-hover: #2a2c26;
+  --line: #dcd9cd;
+  --line-2: #c6c2b4;
+  --edge: #c6c2b4;
+
+  --font-display: "Segoe UI", system-ui, sans-serif;
+  --font-text: "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", Consolas, ui-monospace, monospace;
+  --r-sm: 4px;
+  --r-md: 10px;
+
+  /* Same motion rhythm as the review page — one set of durations, everywhere. */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --m-press: 90ms;
+  --m-in: 150ms;
+  --m-slow: 220ms;
+
+  --sh-key: 0 1px 2px rgba(26, 25, 19, 0.18);
+  --sh-sheet: 0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 14px 30px -18px rgba(26, 25, 19, 0.25);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --desk: #0b0d0e;
+  --sheet: #121517;
+  --sheet-2: #1a1f22;
+  --ink: #eef1ec;
+  --muted: #8b958e;
+  --accent: #3ecf8e;
+  --accent-hi: #6fe3b4;
+  --accent-deep: #2aa476;
+  --accent-ink: #0b0d0e;
+  --gold: #c9a24a;
+  --focus: #3ecf8e;
+  --primary: #eef1ec;
+  --primary-ink: #101214;
+  --primary-hover: #ffffff;
+  --line: #232a2d;
+  --line-2: #2c3438;
+  --edge: #2c3438;
+  --sh-key: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sh-sheet: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 14px 30px -18px rgba(0, 0, 0, 0.7);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+p {
+  margin: 0;
+}
+
+body {
+  width: 306px;
+  margin: 0;
+  padding: 10px;
+  background-color: var(--desk);
+  background-image: radial-gradient(
+    340px 240px at 50% -10%,
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0) 70%
+  );
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-theme="dark"] body {
+  background-image: radial-gradient(
+    340px 240px at 50% -10%,
+    rgba(62, 207, 142, 0.06),
+    rgba(28, 33, 36, 0.6) 30%,
+    rgba(28, 33, 36, 0) 70%
+  );
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  background: var(--sheet);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset;
+}
+
+/* a brass stamp on the paper */
+.mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1;
+  color: var(--accent-ink);
+  background: linear-gradient(180deg, #e2c583, var(--gold) 52%, #8a6a1f);
+  box-shadow: 0 1px 0 rgba(255, 246, 220, 0.55) inset,
+    0 -2px 3px rgba(60, 42, 10, 0.45) inset, 0 2px 3px rgba(80, 58, 14, 0.3);
+  text-shadow: 0 1px 0 rgba(255, 240, 200, 0.4);
+}
+
+.mark-icon {
+  width: 17px;
+  height: 17px;
+  display: block;
+  fill: currentColor;
+  stroke: none;
+}
+
+.head-text h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+
+.head-text p {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+main {
+  padding: 11px 12px 6px;
+  background: var(--sheet);
+  border: 1px solid var(--edge);
+  border-top: none;
+  box-shadow: var(--sh-sheet);
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 11px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--sheet-2);
+  box-shadow: inset 0 1px 3px rgba(58, 44, 26, 0.18);
+  cursor: pointer;
+}
+
+.row-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.row-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.row-note {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.switch-row input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.track {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 21px;
+  border: 1px solid var(--line-2);
+  border-radius: 99px;
+  background: var(--desk);
+  box-shadow: inset 0 1px 3px rgba(58, 44, 26, 0.25);
+  transition: background-color var(--m-in) var(--ease), border-color var(--m-in) var(--ease);
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fdfaf0, #ddd6c4);
+  box-shadow: 0 1px 2px rgba(58, 44, 26, 0.45), 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  transition: transform var(--m-in) var(--ease), background-color var(--m-in) var(--ease);
+}
+
+.switch-row input:checked + .track {
+  background: linear-gradient(180deg, var(--accent-hi), var(--accent));
+  border-color: var(--accent-deep);
+}
+
+.switch-row input:checked + .track .knob {
+  transform: translateX(15px);
+  background: linear-gradient(180deg, #ffffff, #e2d8bd);
+}
+
+.switch-row input:focus-visible + .track {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* primary action — the machined ink keycap from the review page */
+.primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  margin: 11px 0;
+  border: 1px solid #0f0d0a;
+  border-radius: var(--r-sm);
+  background: linear-gradient(180deg, #2c251d, var(--primary) 60%, #0f0d0a);
+  color: var(--primary-ink);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 0 rgba(255, 240, 210, 0.16) inset,
+    0 -2px 3px rgba(0, 0, 0, 0.45) inset, 0 2px 0 #0f0d0a,
+    0 8px 16px -8px rgba(20, 15, 10, 0.7);
+  transition: transform var(--m-press) var(--ease), box-shadow var(--m-in) var(--ease);
+}
+
+[data-theme="dark"] .primary {
+  border-color: #cfc4ac;
+  background: linear-gradient(180deg, #fffdf6, var(--primary) 60%, #d9d1be);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 0 #ffffff inset, 0 -2px 3px rgba(120, 105, 80, 0.25) inset,
+    0 2px 0 #b9ad93, 0 8px 16px -8px rgba(0, 0, 0, 0.7);
+}
+
+.primary:hover {
+  transform: translateY(-1px);
+}
+
+.primary:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .primary:active {
+  box-shadow: inset 0 2px 6px rgba(120, 105, 80, 0.45);
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.link-row {
+  display: block;
+  width: 100%;
+  padding: 9px 2px;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--m-in) var(--ease), padding-left var(--m-in) var(--ease);
+}
+
+.link-row .row-title,
+.link-row .row-note {
+  display: block;
+}
+
+.link-row .row-note {
+  margin-top: 1px;
+}
+
+.link-row:hover {
+  background: var(--sheet-2);
+  padding-left: 8px;
+}
+
+.link-row:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px 9px;
+  background: var(--sheet-2);
+  border: 1px solid var(--edge);
+  border-top: none;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
+
