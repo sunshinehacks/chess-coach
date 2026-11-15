@@ -26,12 +26,21 @@ Chess Coach is two tools in one extension:
 
 2. **A full analysis workbench for after the game.** The Game Review page replays your game with chess.com-style grades, a scrubbable evaluation graph, a mistake inspector that steps through the engine's line, accuracy and estimated-Elo scorecards for both players — and an Opening Studio to drill the opening that burned you.
 
-| | |
-|---|---|
-| <img src="docs/review.png" alt="Game Review — board, evaluation graph, move inspector and score sheet" width="620"/> | **Game Review** — the hero surface. The board takes center stage; the verdict strip, evaluation graph, move inspector and two-column score sheet orbit around it. Click any dip in the graph to jump straight to the mistake. |
-| <img src="docs/coach1.png" alt="Chess Coach live on a chess.com game: grade badge on the board and the coach panel floating beside it" width="620"/> | **Live coach, in context** — a draggable panel floats over chess.com while you play. A grade badge lands on the move's destination square the moment the move is made, with the opening named in the panel header. |
-| <img src="docs/coach2.png" alt="The live coach panel: verdict card, eval bar, grade pills and score sheet" width="420"/> | **The panel up close** — verdict card, live eval bar, per-grade breakdown pills and a two-column score sheet that fills in as you play. Minimizes to a quiet pill when you need the screen. |
-| <img src="docs/opening.png" alt="Opening Studio — guided walkthrough of the Italian Game lesson" width="620"/> | **Opening Studio** — guided walkthroughs, memory drills and free sparring against Stockfish for eight repertoire lines, from the Italian Game to refuting the Scholar's Mate. |
+### 🖼️ The surfaces
+
+<img src="docs/review.png" alt="Game Review — board, evaluation graph, move inspector and score sheet" width="100%"/>
+<p align="center"><sub><b>Game Review</b> — the hero surface. The board takes center stage; the verdict strip, evaluation graph, move inspector and two-column score sheet orbit around it. Click any dip in the graph to jump straight to the mistake.</sub></p>
+
+<img src="docs/coach1.png" alt="Chess Coach live on a chess.com game: grade badge on the board and the coach panel floating beside it" width="100%"/>
+<p align="center"><sub><b>Live coach, in context</b> — a draggable panel floats over chess.com while you play. A grade badge lands on the move's destination square the moment the move is made, with the opening named in the panel header.</sub></p>
+
+<p align="center">
+<img src="docs/coach2.png" alt="The live coach panel: verdict card, eval bar, grade pills and score sheet" width="420"/>
+</p>
+<p align="center"><sub><b>The panel up close</b> — verdict card, live eval bar, per-grade breakdown pills and a two-column score sheet that fills in as you play. Minimizes to a quiet pill when you need the screen.</sub></p>
+
+<img src="docs/opening.png" alt="Opening Studio — guided walkthrough of the Italian Game lesson" width="100%"/>
+<p align="center"><sub><b>Opening Studio</b> — guided walkthroughs, memory drills and free sparring against Stockfish for eight repertoire lines, from the Italian Game to refuting the Scholar's Mate.</sub></p>
 
 ---
 
